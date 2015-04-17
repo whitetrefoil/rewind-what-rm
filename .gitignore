@@ -1,0 +1,16 @@
+node_modules/
+data/
+~*
+*.tmp
+*.temp
+*.db
+.idea/
+*.iml
+*.ipr
+*.iws
+Gemfile.lock
+playground/
+
+# `lib/` is used to put the compiled files
+# it should be updated manually in every releases
+lib/
