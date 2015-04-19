@@ -1,22 +1,16 @@
 restify = require('restify')
-db = require('./db')
-server = restify.createServer()
-bodyParser = require('body-parser')
+app = restify.createServer()
+app.use(restify.acceptParser(app.acceptable))
+app.use(restify.authorizationParser())
+app.use(restify.dateParser())
+app.use(restify.queryParser())
+app.use(restify.jsonp())
+app.use(restify.gzipResponse())
+app.use restify.bodyParser
+  maxBodySize: 4194304
+  mapParams: false
+  mapFiles: false
 
-init = ->
-  server.use(bodyParser.json())
-  server.post 'users', (req, res, next) ->
-    res.send(req.body)
-    res.end()
+#app.use(restify.conditionalRequest())
 
-  server.listen 8080, ->
-    console.log '%s listening at %s', server.name, server.url
-
-
-conn = db.connection
-
-conn.on 'error', ->
-  console.error 'Connection Failed!'
-
-conn.on 'open', ->
-  init()
+module.exports = app

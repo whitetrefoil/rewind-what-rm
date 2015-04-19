@@ -1,6 +1,9 @@
 db = require('../db')
 
 userSchema =
+  _etag:
+    type: String
+    required: true
   name:
     type: String
     required: true
