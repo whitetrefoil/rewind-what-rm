@@ -22,14 +22,12 @@ app.post 'users', (req, res, next) ->
   Users.findOne({ name: req.body.name }).lean().exec (err, existing) ->
     if existing?
       res.json 200, existing
-      res.end()
     else
       newUser =
         name: req.body.name
         bio: req.body.bio
-      Users.create(newUser).lean().exec (err, user) ->
-        res.json 201, user
-        res.end()
+      Users.create newUser, (err, user) ->
+        res.json 201, user.toJSON()
 
 
 app.get 'test'
