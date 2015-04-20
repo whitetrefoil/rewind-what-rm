@@ -1,12 +1,13 @@
 db = require('../db')
 
 userSchema =
-  _etag:
-    type: String
-    required: true
+  _updated:
+    type: Date
+    default: Date.now
   name:
     type: String
     required: true
+    unique: true
   bio: String
 
 Users = db.model 'Users', userSchema

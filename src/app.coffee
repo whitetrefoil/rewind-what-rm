@@ -11,6 +11,10 @@ app.use restify.bodyParser
   mapParams: false
   mapFiles: false
 
+app.use (req, res, next) ->
+  res.charSet('utf-8')
+  next()
+
 #app.use(restify.conditionalRequest())
 
 module.exports = app
