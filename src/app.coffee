@@ -20,6 +20,5 @@ app.use (req, res, next) ->
 # TODO: Remove below debug code
 app.on 'uncaughtException', (req, res, route, err) ->
   console.log('uncaughtException', err.stack)
-  res.end(500)
 
 module.exports = app

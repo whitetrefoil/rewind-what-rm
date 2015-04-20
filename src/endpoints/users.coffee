@@ -3,6 +3,7 @@ app = require('../app')
 db = require('../db')
 restify = require('restify')
 Users = db.model('Users')
+helpers = require('./helpers')
 
 
 app.get 'users', (req, res, next) ->
@@ -10,12 +11,27 @@ app.get 'users', (req, res, next) ->
     if err?
       next(new restify.InternalServerError())
     else
-      res.header('Last-Modified', _.max(users, '_updated')['_updated'])
-      res['_willResponse'] = { items: users }
+      res.header('Last-Modified', _.max(users, '_updated')._updated)
+      res._will = { items: users }
       next()
 , restify.conditionalRequest()
 , (req, res) ->
-  res.json res['_willResponse']
+  res.json res._will
+
+
+app.get 'users/:id', (req, res, next) ->
+  Users.findById(req.params.id).lean().exec (err, user) ->
+    if err?
+      next(new restify.BadRequestError())
+    else if not user?
+      next(new restify.NotFoundError())
+    else
+      res.header('Last-Modified', user._updated)
+      res._will = user
+      next()
+, restify.conditionalRequest()
+, (req, res) ->
+  res.json res._will
 
 
 app.post 'users', (req, res, next) ->
@@ -30,11 +46,50 @@ app.post 'users', (req, res, next) ->
         res.json 201, user.toJSON()
 
 
-app.get 'test'
+app.put 'users/:id', helpers.checkIfUnmodifiedSince
 , (req, res, next) ->
-  res.header 'ETag', 'asdf123'
-  next()
+  id = req.params.id
+  Users.findById(id).exec (err, user) ->
+    if err?
+      next(new restify.InternalServerError())
+    else if not user?
+      next(new restify.NotFoundError())
+    else
+      res.header 'Last-Modified', user._updated
+      res._will = user
+      next()
 , restify.conditionalRequest()
 , (req, res, next) ->
-  console.log 'asdf'
-  res.json []
+  try
+    res._will.set(req.body)
+    res._will.set('_updated', Date.now())
+  catch e
+    return next(new restify.BadRequestError())
+  res._will.save (err, user) ->
+    if err?
+      next(new restify.InternalServerError(err))
+    else
+      res.setHeader('Last-Modified', user._updated.toGMTString())
+      res.json(200, user)
+
+
+app.del 'users/:id', helpers.checkIfUnmodifiedSince
+, (req, res, next) ->
+  id = req.params.id
+  Users.findById(id).exec (err, user) ->
+    if err?
+      next(new restify.InternalServerError())
+    else if not user?
+      next(new restify.NotFoundError())
+    else
+      res.header 'Last-Modified', user._updated
+      res._will = user
+      next()
+, restify.conditionalRequest()
+, (req, res, next) ->
+  res._will.remove (err, deleted) ->
+    if err?
+      next(new restify.InternalServerError())
+    else
+      res.status(204)
+      res.end()
