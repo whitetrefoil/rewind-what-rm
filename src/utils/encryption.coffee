@@ -2,8 +2,9 @@ RSAKey = require('node-rsa')
 bcrypt = require('bcrypt')
 
 
-privateKey = new RSAKey({ b: 2048 })
-publicKey = privateKey.exportKey('public')
+# TODO: using smaller key to speed-up development, replace after that
+privateKey = new RSAKey({ b: 512 })
+publicKey = privateKey.exportKey('public').replace(/\n/g, '').replace(/--[\w -]+--/g, '')
 
 encryption =
   # RSA keys for sign in

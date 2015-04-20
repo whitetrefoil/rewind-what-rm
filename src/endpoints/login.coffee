@@ -20,6 +20,17 @@ app.get '/login'
 # TODO
 app.post '/login'
 , (req, res, next) ->
+  # TODO: Dev code
+  #decrypted = encryption.decrypt(req.body)
+  decrypted = req.body
+  splitterIndex = decrypted.search(':')
+  if splitterIndex < 0 then return next(new restify.BadRequestError())
+  username = decrypted.substr(0, splitterIndex)
+  password = decrypted.substr(splitterIndex + 1)
+  Users.findOne({ name: username }).exec (err, user) ->
+    Accounts.findById(user.id).exec (err, acc) ->
+      encryption.checkPassword password, acc.token, (err, isMatch) ->
+        console.log isMatch
   next(new restify.NotImplementedError())
 
 
@@ -34,7 +45,40 @@ app.get '/sign-in'
 # TODO
 app.post '/accounts'
 , (req, res, next) ->
-  next(new restify.NotImplementedError())
+  try
+    # TODO: Dev code
+    #decrypted = encryption.decrypt(req.body)
+    decrypted = req.body
+    splitterIndex = decrypted.search(':')
+    if splitterIndex < 0 then return next(new restify.BadRequestError())
+    username = decrypted.substr(0, splitterIndex)
+    password = decrypted.substr(splitterIndex + 1)
+  catch e
+    return next(new restify.BadRequestError())
+  Users.findOne({ name: username }).exec (err, user) ->
+    if err?
+      return next(new restify.InternalServerError(err))
+    else if not user?
+      return next(new restify.NotFoundError())
+    else
+      id = user.id
+      Accounts.findById(id).exec (err, account) ->
+        if err?
+          return next(new restify.InternalServerError(err))
+        else if account?
+          return next(new restify.ConflictError())
+        else
+          encryption.cryptPassword password, (err, salted) ->
+            if err? then return next(new restify.InternalServerError(err))
+            console.log(id)
+            Accounts.create
+              _id: id
+              token: salted
+            , (err, account) ->
+                if err?
+                  return next(new restify.InternalServerError(err))
+                else
+                  res.json(201, _.omit(account.toJSON(), 'token'))
 
 
 # PUT accounts = change password, require auth
