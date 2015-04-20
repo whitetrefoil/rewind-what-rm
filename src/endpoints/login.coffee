@@ -75,10 +75,10 @@ app.post '/accounts'
               _id: id
               token: salted
             , (err, account) ->
-                if err?
-                  return next(new restify.InternalServerError(err))
-                else
-                  res.json(201, _.omit(account.toJSON(), 'token'))
+              if err?
+                return next(new restify.InternalServerError(err))
+              else
+                res.json(201, _.omit(account.toJSON(), 'token'))
 
 
 # PUT accounts = change password, require auth
