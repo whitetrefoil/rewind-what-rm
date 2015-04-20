@@ -6,6 +6,8 @@ Users = db.model('Users')
 helpers = require('./helpers')
 
 
+# GET users - get users list, require auth
+# TODO: Auth
 app.get 'users', (req, res, next) ->
   Users.find().lean().exec (err, users) ->
     if err?
@@ -19,6 +21,8 @@ app.get 'users', (req, res, next) ->
   res.json res._will
 
 
+# GET users - get user by id, require auth
+# TODO: Auth
 app.get 'users/:id', (req, res, next) ->
   Users.findById(req.params.id).lean().exec (err, user) ->
     if err?
@@ -34,6 +38,9 @@ app.get 'users/:id', (req, res, next) ->
   res.json res._will
 
 
+# POST users - create user
+# TODO: handle duplicated users
+# TODO: handle inactive users
 app.post 'users', (req, res, next) ->
   Users.findOne({ name: req.body.name }).lean().exec (err, existing) ->
     if existing?
@@ -46,6 +53,8 @@ app.post 'users', (req, res, next) ->
         res.json 201, user.toJSON()
 
 
+# PUT users - modify user information, require auth
+# TODO: require auth
 app.put 'users/:id', helpers.checkIfUnmodifiedSince
 , (req, res, next) ->
   id = req.params.id
@@ -73,6 +82,10 @@ app.put 'users/:id', helpers.checkIfUnmodifiedSince
       res.json(200, user)
 
 
+# DELETE users - deactivate a user, require auth
+# TODO: require auth
+# TODO: This endpoint is for development only, now it will remove the user instead of deactivate it.
+# TODO: Clean the related account and session
 app.del 'users/:id', helpers.checkIfUnmodifiedSince
 , (req, res, next) ->
   id = req.params.id
@@ -93,3 +106,6 @@ app.del 'users/:id', helpers.checkIfUnmodifiedSince
     else
       res.status(204)
       res.end()
+
+
+module.exports = app

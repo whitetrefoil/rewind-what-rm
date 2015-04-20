@@ -1,13 +1,15 @@
 app = require('./app')
 db = require('./db')
 
-
 models =
   users: require('./models/users')
+  accounts: require('./models/accounts')
+  sessions: require('./models/sessions')
 
 
 endpoints =
   users: require('./endpoints/users')
+  login: require('./endpoints/login')
 
 
 conn = db.connection

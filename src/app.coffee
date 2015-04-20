@@ -1,4 +1,6 @@
 restify = require('restify')
+
+
 app = restify.createServer()
 app.use(restify.acceptParser(app.acceptable))
 app.use(restify.authorizationParser())
@@ -15,10 +17,9 @@ app.use (req, res, next) ->
   res.charSet('utf-8')
   next()
 
-#app.use(restify.conditionalRequest())
-
 # TODO: Remove below debug code
 app.on 'uncaughtException', (req, res, route, err) ->
   console.log('uncaughtException', err.stack)
+
 
 module.exports = app
