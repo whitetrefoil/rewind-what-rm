@@ -3,7 +3,10 @@ app = require('../app')
 db = require('../db')
 restify = require('restify')
 Users = db.model('Users')
+Accounts = db.model('Accounts')
+Sessions = db.model('Sessions')
 helpers = require('./helpers')
+encryption = require('../utils/encryption')
 
 
 # GET users - get users list, require auth
@@ -38,19 +41,34 @@ app.get 'users/:id', (req, res, next) ->
   res.json res._will
 
 
-# POST users - create user
+# POST users - create user, sign-in
 # TODO: handle duplicated users
 # TODO: handle inactive users
 app.post 'users', (req, res, next) ->
-  Users.findOne({ name: req.body.name }).lean().exec (err, existing) ->
+  #decrypted = encryption.decrypt(req.body, true)
+  decrypted = req.body
+  if _.isEmpty(decrypted.name) or _.isEmpty(decrypted.pass)
+    return next(new restify.BadRequestError())
+
+  Users.findOne({ name: decrypted.name }).lean().exec (err, existing) ->
     if existing?
-      res.json 200, existing
+      return next(new restify.ConflictError())
     else
       newUser =
-        name: req.body.name
-        bio: req.body.bio
+        name: decrypted.name
+        bio: decrypted.bio
       Users.create newUser, (err, user) ->
-        res.json 201, user.toJSON()
+        if err? then return next(err)
+        encryption.cryptPassword decrypted.pass, (err, salted) ->
+          if err? then return next(err)
+          Accounts.findByIdAndUpdate user.id,
+            id: user.id
+            token: salted
+          ,
+            upsert: true
+          , (err, acc) ->
+            if err? then return next(err)
+            res.json 201, user.toJSON()
 
 
 # PUT users - modify user information, require auth
