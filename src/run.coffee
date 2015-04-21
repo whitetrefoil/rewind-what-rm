@@ -6,6 +6,7 @@ models =
   accounts: require('./models/accounts')
   sessions: require('./models/sessions')
 
+require('./endpoints/middleware')
 
 endpoints =
   users: require('./endpoints/users')

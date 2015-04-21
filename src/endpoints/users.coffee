@@ -10,8 +10,9 @@ encryption = require('../utils/encryption')
 
 
 # GET users - get users list, require auth
-# TODO: Auth
-app.get 'users', (req, res, next) ->
+app.get 'users'
+, helpers.checkAuth
+, (req, res, next) ->
   Users.find().lean().exec (err, users) ->
     if err?
       next(new restify.InternalServerError())
@@ -26,7 +27,9 @@ app.get 'users', (req, res, next) ->
 
 # GET users - get user by id, require auth
 # TODO: Auth
-app.get 'users/:id', (req, res, next) ->
+app.get 'users/:id'
+, helpers.checkAuth
+, (req, res, next) ->
   Users.findById(req.params.id).lean().exec (err, user) ->
     if err?
       next(new restify.BadRequestError())
@@ -42,8 +45,6 @@ app.get 'users/:id', (req, res, next) ->
 
 
 # POST users - create user, sign-in
-# TODO: handle duplicated users
-# TODO: handle inactive users
 app.post 'users', (req, res, next) ->
   #decrypted = encryption.decrypt(req.body, true)
   decrypted = req.body
@@ -72,8 +73,9 @@ app.post 'users', (req, res, next) ->
 
 
 # PUT users - modify user information, require auth
-# TODO: require auth
-app.put 'users/:id', helpers.checkIfUnmodifiedSince
+app.put 'users/:id'
+, helpers.checkAuth
+, helpers.checkIfUnmodifiedSince
 , (req, res, next) ->
   id = req.params.id
   Users.findById(id).exec (err, user) ->
@@ -101,10 +103,11 @@ app.put 'users/:id', helpers.checkIfUnmodifiedSince
 
 
 # DELETE users - deactivate a user, require auth
-# TODO: require auth
 # TODO: This endpoint is for development only, now it will remove the user instead of deactivate it.
 # TODO: Clean the related account and session
-app.del 'users/:id', helpers.checkIfUnmodifiedSince
+app.del 'users/:id'
+, helpers.checkAuth
+, helpers.checkIfUnmodifiedSince
 , (req, res, next) ->
   id = req.params.id
   Users.findById(id).exec (err, user) ->

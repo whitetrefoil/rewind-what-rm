@@ -13,9 +13,6 @@ app.use restify.bodyParser
   mapParams: false
   mapFiles: false
 
-app.use (req, res, next) ->
-  res.charSet('utf-8')
-  next()
 
 # TODO: Remove below debug code
 app.on 'uncaughtException', (req, res, route, err) ->
