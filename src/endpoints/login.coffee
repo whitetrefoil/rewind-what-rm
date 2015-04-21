@@ -49,4 +49,10 @@ app.put '/accounts'
   next(new restify.NotImplementedError())
 
 
+# GET key = get a public key for sign-in and log-in
+app.get '/key'
+, (req, res, next) ->
+  res.json encryption.publicKey
+
+
 module.exports = app
