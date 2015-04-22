@@ -11,10 +11,15 @@ encryption =
   publicKey: publicKey
 
   decrypt: (encrypted, isJson = false) ->
-    if isJson
-      privateKey.decrypt(encrypted, 'json')
-    else
-      privateKey.decrypt(encrypted).toString('utf-8')
+    try
+      if isJson
+        privateKey.decrypt(encrypted, 'json')
+      else
+        privateKey.decrypt(encrypted).toString('utf-8')
+    catch e
+      console.error 'Cannot decrypt:', encrypted
+      console.error e
+      null
 
 
   cryptPassword: (pass, cb) ->

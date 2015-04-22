@@ -24,22 +24,25 @@ app.get '/login'
 # POST login = login, send valid username + password in body, get a new token
 app.post '/login'
 , (req, res, next) ->
-  decrypted = encryption.decrypt(req.body)
-  splitterIndex = decrypted.search(':')
-  if splitterIndex < 0 then return next(new restify.BadRequestError())
-  username = decrypted.substr(0, splitterIndex)
-  password = decrypted.substr(splitterIndex + 1)
+  decrypted = encryption.decrypt(req.body, true)
+  if not decrypted?
+    return next(new restify.BadRequestError('Error when decryption.'))
+  username = decrypted.name
+  password = decrypted.pass
   Users.findOne({ name: username }).exec (err, user) ->
-    Accounts.findById(user.id).exec (err, acc) ->
-      encryption.checkPassword password, acc.token, (err, isMatch) ->
-        if isMatch
-          helpers.generateToken acc.id, (err, session) ->
-            if err?
-              return next(err)
-            else
-              return res.json session
-        else
-          return next(new restify.UnauthorizedError())
+    if not user?
+      return next(new restify.UnauthorizedError())
+    else
+      Accounts.findById(user.id).exec (err, acc) ->
+        encryption.checkPassword password, acc.token, (err, isMatch) ->
+          if isMatch
+            helpers.generateToken acc.id, (err, session) ->
+              if err?
+                return next(err)
+              else
+                return res.json session
+          else
+            return next(new restify.UnauthorizedError())
 
 
 # PUT accounts = change password, require auth

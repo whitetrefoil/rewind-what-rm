@@ -46,9 +46,8 @@ app.get 'users/:id'
 
 # POST users - create user, sign-in
 app.post 'users', (req, res, next) ->
-  #decrypted = encryption.decrypt(req.body, true)
-  decrypted = req.body
-  if _.isEmpty(decrypted.name) or _.isEmpty(decrypted.pass)
+  decrypted = _.extend({}, req.body, encryption.decrypt(req.body.auth, true))
+  if not decrypted? or _.isEmpty(decrypted.name) or _.isEmpty(decrypted.pass)
     return next(new restify.BadRequestError())
 
   Users.findOne({ name: decrypted.name }).lean().exec (err, existing) ->
