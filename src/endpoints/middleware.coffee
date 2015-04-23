@@ -13,17 +13,20 @@ app.use (req, res, next) ->
 
 # Get User Info
 app.use (req, res, next) ->
-  token = req.headers['x-token']
-  if token?
-    helpers.checkToken token, (err, session) ->
-      if not err? and session?.id?
-        Users.findById session.id, (err, user) ->
-          if not err? and user?
-            req.user = user
-            next()
-          else
-            next()
-      else
-        next()
-  else
+  try
+    token = new Buffer(req.headers['x-token'], 'base64').toString()
+    if token?
+      helpers.checkToken token, (err, session) ->
+        if not err? and session?.id?
+          Users.findById session.id, (err, user) ->
+            if not err? and user?
+              req.user = user
+              next()
+            else
+              next()
+        else
+          next()
+    else
+      next()
+  catch
     next()
