@@ -4,12 +4,14 @@ db = require('./db')
 models =
   users: require('./models/users')
   accounts: require('./models/accounts')
+  posts: require('./models/posts')
 
 require('./endpoints/middleware')
 
 endpoints =
   users: require('./endpoints/users')
   login: require('./endpoints/login')
+  posts: require('./endpoints/posts')
 
 
 conn = db.connection
