@@ -4,21 +4,15 @@ db = require('../db')
 restify = require('restify')
 Users = db.model('Users')
 Accounts = db.model('Accounts')
-Sessions = db.model('Sessions')
 helpers = require('./helpers')
 encryption = require('../utils/encryption')
 
 
-# GET login = refresh, send a valid token in header, get a new token and refresh the expire time
-# TODO
+# GET login = get current logged-in user
 app.get '/login'
 , helpers.checkAuth
 , (req, res, next) ->
-  helpers.generateToken req.user.id, (err, session) ->
-    if err?
-      return next(err)
-    else
-      return res.json session
+  res.json req.sn.user
 
 
 # POST login = login, send valid username + password in body, get a new token
@@ -36,11 +30,8 @@ app.post '/login'
       Accounts.findById(user.id).exec (err, acc) ->
         encryption.checkPassword password, acc.token, (err, isMatch) ->
           if isMatch
-            helpers.generateToken acc.id, (err, session) ->
-              if err?
-                return next(err)
-              else
-                return res.json session
+            req.sn.user = user.toJSON()
+            res.json(user)
           else
             return next(new restify.UnauthorizedError())
 

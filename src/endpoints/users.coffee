@@ -4,7 +4,6 @@ db = require('../db')
 restify = require('restify')
 Users = db.model('Users')
 Accounts = db.model('Accounts')
-Sessions = db.model('Sessions')
 helpers = require('./helpers')
 encryption = require('../utils/encryption')
 
@@ -26,7 +25,6 @@ app.get 'users'
 
 
 # GET users - get user by id, require auth
-# TODO: Auth
 app.get 'users/:id'
 , helpers.checkAuth
 , (req, res, next) ->
@@ -104,28 +102,28 @@ app.put 'users/:id'
 # DELETE users - deactivate a user, require auth
 # TODO: This endpoint is for development only, now it will remove the user instead of deactivate it.
 # TODO: Clean the related account and session
-app.del 'users/:id'
-, helpers.checkAuth
-, helpers.checkIfUnmodifiedSince
-, (req, res, next) ->
-  id = req.params.id
-  Users.findById(id).exec (err, user) ->
-    if err?
-      next(new restify.InternalServerError())
-    else if not user?
-      next(new restify.NotFoundError())
-    else
-      res.header 'Last-Modified', user._updated
-      res._will = user
-      next()
-, restify.conditionalRequest()
-, (req, res, next) ->
-  res._will.remove (err, deleted) ->
-    if err?
-      next(new restify.InternalServerError())
-    else
-      res.status(204)
-      res.end()
+#app.del 'users/:id'
+#, helpers.checkAuth
+#, helpers.checkIfUnmodifiedSince
+#, (req, res, next) ->
+#  id = req.params.id
+#  Users.findById(id).exec (err, user) ->
+#    if err?
+#      next(new restify.InternalServerError())
+#    else if not user?
+#      next(new restify.NotFoundError())
+#    else
+#      res.header 'Last-Modified', user._updated
+#      res._will = user
+#      next()
+#, restify.conditionalRequest()
+#, (req, res, next) ->
+#  res._will.remove (err, deleted) ->
+#    if err?
+#      next(new restify.InternalServerError())
+#    else
+#      res.status(204)
+#      res.end()
 
 
 module.exports = app

@@ -4,7 +4,6 @@ db = require('./db')
 models =
   users: require('./models/users')
   accounts: require('./models/accounts')
-  sessions: require('./models/sessions')
 
 require('./endpoints/middleware')
 

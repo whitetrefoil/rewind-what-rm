@@ -11,10 +11,11 @@
     "time-grunt"          : "^1.1.1"
   },
   "dependencies"   : {
-    "bcrypt"  : "^0.8.2",
-    "lodash"  : "^3.7.0",
-    "mongoose": "^4.0.1",
-    "restify" : "^3.0.2",
-    "uuid"    : "^2.0.1"
+    "bcrypt"         : "^0.8.2",
+    "client-sessions": "^0.7.0",
+    "lodash"         : "^3.7.0",
+    "mongoose"       : "^4.0.1",
+    "restify"        : "^3.0.2",
+    "uuid"           : "^2.0.1"
   }
 }

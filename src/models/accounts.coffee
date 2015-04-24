@@ -1,5 +1,6 @@
 db = require('../db')
 
+
 accountSchema =
   _updated:
     type: Date
@@ -8,5 +9,6 @@ accountSchema =
 
 
 Accounts = db.model 'Accounts', accountSchema
+
 
 module.exports = Accounts
